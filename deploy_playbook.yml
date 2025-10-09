@@ -1,0 +1,29 @@
+---
+- name: Deploy Dockerized Scientific Calculator
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  collections:
+    - community.docker
+
+  tasks:
+    - name: Pull the latest Docker image from Docker Hub
+      community.docker.docker_image:
+        name: "equador007/scientific-calculator:latest"
+        source: pull
+
+    - name: Stop and remove old container if it exists
+      community.docker.docker_container:
+        name: calculator-container
+        state: absent
+      ignore_errors: yes
+
+    - name: Run the new scientific calculator container
+      community.docker.docker_container:
+        name: calculator-container
+        image: "equador007/scientific-calculator:latest"
+        state: started
+        tty: true
+        # stdin_open: true
+        ports:
+          - "8080:8080"  # change to whatever your app exposes
