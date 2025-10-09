@@ -16,14 +16,14 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                sh 'python3 -m unittest test_calculator.py'
+                sh 'python3 -m unittest tester.py'
             }
         }
 
         stage('Containerize') {
             steps {
                 script {
-                    def dockerHubUsername = 'your-dockerhub-username'
+                    def dockerHubUsername = 'equador007'
                     def dockerHubRepo = 'scientific-calculator'
                     def fullImageName = "${dockerHubUsername}/${dockerHubRepo}"
                     
