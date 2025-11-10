@@ -1,27 +1,74 @@
+# ---
+# - name: Deploy Dockerized Scientific Calculator
+#   hosts: localhost
+#   connection: local
+#   gather_facts: false
+#   collections:
+#     - community.docker
+
+#   tasks:
+#     - name: Pull the latest Docker image from Docker Hub
+#       community.docker.docker_image:
+#         name: "equador007/scientific-calculator:latest"
+#         source: pull
+
+#     - name: Stop and remove old container if it exists
+#       community.docker.docker_container:
+#         name: calculator-container
+#         state: absent
+#       ignore_errors: yes
+
+#     - name: Run the new scientific calculator container
+#       community.docker.docker_container:
+#         name: calculator-container
+#         image: "equador007/scientific-calculator:latest"
+#         state: started
+#         tty: true
+#         interactive: true
+
+
 ---
-- name: Deploy Dockerized Scientific Calculator
+- name: Deploy Scientific Calculator Docker Container
   hosts: localhost
   connection: local
-  gather_facts: false
-  collections:
-    - community.docker
+  gather_facts: no
+
+  vars:
+    docker_image: "equador007/scientific-calculator:latest"
+    container_name: "scientific_calculator_app"
 
   tasks:
+    - name: Ensure Docker service is running
+      ansible.builtin.service:
+        name: docker
+        state: started
+      become: yes
+
+    - name: Stop and remove existing container (if it exists)
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        state: absent
+        force_kill: yes
+      ignore_errors: yes
+      become: yes
+
     - name: Pull the latest Docker image from Docker Hub
       community.docker.docker_image:
-        name: "equador007/scientific-calculator:latest"
+        name: "{{ docker_image }}"
         source: pull
+      become: yes
 
-    - name: Stop and remove old container if it exists
+    - name: Run the scientific calculator container on the managed host
       community.docker.docker_container:
-        name: calculator-container
-        state: absent
-      ignore_errors: yes
-
-    - name: Run the new scientific calculator container
-      community.docker.docker_container:
-        name: calculator-container
-        image: "equador007/scientific-calculator:latest"
+        name: "{{ container_name }}"
+        image: "{{ docker_image }}"
         state: started
-        tty: true
-        interactive: true
+        tty: yes          # Allocate a pseudo-TTY
+        interactive: yes  # Keep STDIN open
+        detach: yes
+      become: yes
+
+
+    - name: Verification message
+      ansible.builtin.debug:
+        msg: "The scientific calculator is running in container '{{ container_name }}'. Use 'docker logs {{ container_name }}' to interact."
