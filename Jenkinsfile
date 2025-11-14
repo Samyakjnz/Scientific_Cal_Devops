@@ -37,6 +37,20 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy via Ansible in WSL2') {
+            steps {
+                // Ensure ansible-playbook runs in the correct environment with PATH set
+                sh '''
+                    export PATH="$HOME/.local/bin:$PATH"
+                    ansible-playbook deploy_playbook.yml
+                '''
+            }
+        }
+        
+
+
+
     }   
 }
 
