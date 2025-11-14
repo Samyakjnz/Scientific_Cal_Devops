@@ -38,11 +38,11 @@
     container_name: "scientific_calculator_app"
 
   tasks:
-    - name: Ensure Docker service is running
-      ansible.builtin.service:
-        name: docker
-        state: started
-      become: yes
+    # - name: Ensure Docker service is running
+    #   ansible.builtin.service:
+    #     name: docker
+    #     state: started
+    #   become: false
 
     - name: Stop and remove existing container (if it exists)
       community.docker.docker_container:
@@ -50,13 +50,13 @@
         state: absent
         force_kill: yes
       ignore_errors: yes
-      become: yes
+      become: false
 
     - name: Pull the latest Docker image from Docker Hub
       community.docker.docker_image:
         name: "{{ docker_image }}"
         source: pull
-      become: yes
+      become: false
 
     - name: Run the scientific calculator container on the managed host
       community.docker.docker_container:
@@ -66,7 +66,7 @@
         tty: yes          # Allocate a pseudo-TTY
         interactive: yes  # Keep STDIN open
         detach: yes
-      become: yes
+      become: false
 
 
     - name: Verification message
