@@ -36,6 +36,9 @@ pipeline {
                     
                 }
             }
+
+
+            
         }
 
         stage('Deploy via Ansible in WSL2') {
